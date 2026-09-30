@@ -1,0 +1,95 @@
+! Cisco broadband router configuration
+hostname Router
+
+! NAT overload for LAN clients using the WAN interface
+access-list 1 remark LAN networks allowed to use the WAN
+access-list 1 permit 192.168.10.0 0.0.0.255
+access-list 1 permit 192.168.20.0 0.0.0.255
+access-list 1 permit 192.168.30.0 0.0.0.255
+access-list 1 permit 192.168.40.0 0.0.0.255
+access-list 1 permit 192.168.50.0 0.0.0.255
+ip nat inside source list 1 interface gi0/0 overload
+
+ip dhcp excluded-address 192.168.10.254
+ip dhcp pool servers
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.254
+ exit
+
+ip dhcp excluded-address 192.168.20.254
+ip dhcp pool accounting
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.254
+ exit
+
+ip dhcp excluded-address 192.168.30.254
+ip dhcp pool hr
+ network 192.168.30.0 255.255.255.0
+ default-router 192.168.30.254
+ exit
+
+ip dhcp excluded-address 192.168.40.254
+ip dhcp pool marketing
+ network 192.168.40.0 255.255.255.0
+ default-router 192.168.40.254
+ exit
+
+ip dhcp excluded-address 192.168.50.254
+ip dhcp pool production
+ network 192.168.50.0 255.255.255.0
+ default-router 192.168.50.254
+ exit
+
+! VLAN subinterfaces use dot1Q tagging
+
+interface gi0/1
+ no ip address
+ no shutdown
+exit
+
+interface gi0/0
+ ip nat outside
+ description WAN
+ ip address dhcp
+ no shutdown
+exit
+
+interface gi0/1.10
+ ip nat inside
+ encapsulation dot1Q 10
+ description Servers
+ ip address 192.168.10.254 255.255.255.0
+ no shutdown
+exit
+
+interface gi0/1.20
+ ip nat inside
+ encapsulation dot1Q 20
+ description Accounting
+ ip address 192.168.20.254 255.255.255.0
+ no shutdown
+exit
+
+interface gi0/1.30
+ ip nat inside
+ encapsulation dot1Q 30
+ description HR
+ ip address 192.168.30.254 255.255.255.0
+ no shutdown
+exit
+
+interface gi0/1.40
+ ip nat inside
+ encapsulation dot1Q 40
+ description Marketing
+ ip address 192.168.40.254 255.255.255.0
+ no shutdown
+exit
+
+interface gi0/1.50
+ ip nat inside
+ encapsulation dot1Q 50
+ description Production
+ ip address 192.168.50.254 255.255.255.0
+ no shutdown
+exit

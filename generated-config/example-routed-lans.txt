@@ -1,0 +1,34 @@
+! Cisco broadband router configuration
+hostname Router
+
+! NAT overload for LAN clients using the WAN interface
+access-list 1 remark LAN networks allowed to use the WAN
+access-list 1 permit 192.168.0.0 0.0.0.255
+access-list 1 permit 192.168.2.0 0.0.0.255
+access-list 1 permit 192.168.3.0 0.0.0.255
+ip nat inside source list 1 interface gi0/0 overload
+
+ip dhcp excluded-address 192.168.0.254
+ip dhcp pool servers
+ network 192.168.0.0 255.255.255.0
+ default-router 192.168.0.254
+ exit
+
+interface gi0/0
+ ip nat outside
+ description WAN
+ ip address 172.23.80.200 255.255.254.0
+ no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 172.23.80.1
+
+interface gi0/1
+ ip nat inside
+ description Servers
+ ip address 192.168.0.254 255.255.255.0
+ no shutdown
+exit
+
+ip route 192.168.2.0 255.255.255.0 192.168.0.1
+
+ip route 192.168.3.0 255.255.255.0 192.168.0.1
